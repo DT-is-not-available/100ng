@@ -25,7 +25,12 @@ let player; // ourself/client avatar
   };
 
   ws.onmessage = function(data, flags) {
-    const msg = JSON.parse(data.data);
+    let msg
+    try {
+      msg = JSON.parse(data.data); // normal packet
+    } catch (err) {
+      msg = data.data; // chat message
+    }
     // console.log('received message:', msg);
 
     const messageHandlers = {
@@ -92,10 +97,14 @@ let player; // ourself/client avatar
       },
       win() {
         document.getElementById('winSound').play();
+      },
+      chat(message) {
+        // do something with chat message
+        //console.log(message);
       }
     };
-
-    messageHandlers[msg.type]();
+    if (typeof msg == 'string') messageHandlers.chat(msg)
+    else messageHandlers[msg.type]();
   };
 
   // auto-reconnect if server reboots
